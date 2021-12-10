@@ -190,6 +190,7 @@ int main(int argc, char* argv[]){
     }
   } catch (po::error& e){
     s::cerr << "option parsing error: " << e.what() << s::endl;
+    s::cerr << desc << s::endl;
   } catch (s::exception& e){
     s::cerr << "exception: " << e.what() << s::endl;
   }

@@ -26,6 +26,7 @@ namespace sev = boost::log::trivial;
 namespace po = boost::program_options;
 
 const char* const COINBASE_URL = "https://api.exchange.coinbase.com/products/";
+const char* const USER_AGENT = "the_crypt";
 
 struct memory {
   char* response;
@@ -94,7 +95,7 @@ void book_extraction(const s::string& product, int level, int interval, int tota
 
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
     curl_easy_setopt(hnd, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(hnd, CURLOPT_USERAGENT, "book_extractor");
+    curl_easy_setopt(hnd, CURLOPT_USERAGENT, USER_AGENT);
     curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, write_buffer);
     curl_easy_setopt(hnd, CURLOPT_WRITEDATA, (void*)&chunk);
 

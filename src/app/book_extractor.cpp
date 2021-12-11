@@ -118,6 +118,7 @@ void book_extraction(const s::string& product, int level, int interval, int tota
       continue;
     }
     ofile << chunk.response;
+    ofile.flush();
 
     usleep(interval);
   }

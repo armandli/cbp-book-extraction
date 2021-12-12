@@ -11,7 +11,9 @@ setup(
   package_data={},
   data_files={},
   install_requires=[
-    'requests'
+    'requests',
+    'pytz',
+    's3cmd',
   ],
   entry_points={
     'console_scripts':[

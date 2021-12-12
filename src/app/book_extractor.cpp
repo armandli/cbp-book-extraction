@@ -111,6 +111,8 @@ void book_extraction(const s::string& product, int level, int interval, int tota
       continue;
     }
 
+    //TODO: check if Public rate limit exceeded
+
     if (is_first) is_first = false;
     else          ofile << ",";
 

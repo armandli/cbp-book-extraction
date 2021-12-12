@@ -192,6 +192,8 @@ int main(int argc, char* argv[]){
     for (s::thread& t : threads){
       t.join();
     }
+
+    BOOST_LOG_SEV(logger(), sev::info) << __FUNCTION__ << "Extraction complete";
   } catch (po::error& e){
     s::cerr << "option parsing error: " << e.what() << s::endl;
     s::cerr << desc << s::endl;

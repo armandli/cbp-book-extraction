@@ -225,7 +225,6 @@ int main(int argc, char* argv[]){
   try {
     desc.add_options()
       ("pid", po::value<s::string>()->required(), "list of product id separated by ':'")
-      ("level", po::value<int>()->default_value(1), "order book level")
       ("interval", po::value<int>()->required(), "time between extraction in microseconds")
       ("total", po::value<int>()->required(), "total number of sequences to extract")
       ("prefix", po::value<s::string>()->required(), "output file name prefix")
@@ -235,7 +234,6 @@ int main(int argc, char* argv[]){
     po::notify(vm);
 
     s::string pids = vm["pid"].as<s::string>();
-    int level = vm["level"].as<int>();
     int interval = vm["interval"].as<int>();
     int total = vm["total"].as<int>();
     s::string prefix = vm["prefix"].as<s::string>();
@@ -251,10 +249,6 @@ int main(int argc, char* argv[]){
     BOOST_LOG_SEV(logger(), sev::info) << "Extracting for products: ";
     for (int i = 0; i < products.size(); ++i){
       BOOST_LOG_SEV(logger(), sev::info) << products[i];
-    }
-
-    for (const s::string& product : products){
-      threads.emplace_back(book_extraction, product, level, interval, total, prefix, epoch);
     }
 
     for (const s::string& product : products){

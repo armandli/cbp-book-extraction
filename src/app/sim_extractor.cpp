@@ -258,19 +258,11 @@ int main(int argc, char* argv[]){
     }
 
     for (const s::string& product : products){
-      threads.emplace_back(product_extraction, product, "candles", interval, total, prefix, epoch);
-    }
-
-    for (const s::string& product : products){
       threads.emplace_back(product_extraction, product, "stats", interval, total, prefix, epoch);
     }
 
     for (const s::string& product : products){
       threads.emplace_back(product_extraction, product, "ticker", interval, total, prefix, epoch);
-    }
-
-    for (const s::string& product : products){
-      threads.emplace_back(product_extraction, product, "trades", interval, total, prefix, epoch);
     }
 
     for (s::thread& t : threads){

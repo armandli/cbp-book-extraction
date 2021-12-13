@@ -86,17 +86,17 @@ void extraction(const s::string& url, CURL* hnd, s::ofstream& ofile){
 
 void sim_extraction(const s::string& product, int level, int interval, int total, const s::string& prefix, int epoch){
   s::stringstream book_outss;
-  book_outss << prefix << "_book_" << s::to_string(epoch) << ".json";
+  book_outss << prefix << "_" << product << "_book_" << s::to_string(epoch) << ".json";
   s::string book_outfile = book_outss.str();
   s::ofstream book_ofile(book_outfile.c_str());
 
   s::stringstream stats_outss;
-  stats_outss << prefix << "_stats_" << s::to_string(epoch) << ".json";
+  stats_outss << prefix << "_" << product << "_stats_" << s::to_string(epoch) << ".json";
   s::string stats_outfile = stats_outss.str();
   s::ofstream stats_ofile(stats_outfile.c_str());
 
   s::stringstream ticker_outss;
-  ticker_outss << prefix << "_ticker_" << s::to_string(epoch) << ".json";
+  ticker_outss << prefix << "_" << product << "_ticker_" << s::to_string(epoch) << ".json";
   s::string ticker_outfile = ticker_outss.str();
   s::ofstream ticker_ofile(ticker_outfile.c_str());
 

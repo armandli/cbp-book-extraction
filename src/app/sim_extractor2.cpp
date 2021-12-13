@@ -131,15 +131,15 @@ void sim_extraction(const s::string& product, int level, int interval, int total
     if (book_is_first) book_is_first = false;
     else               book_ofile << ",";
     extraction(book_url, hnd, book_ofile);
-    usleep(1000000);
+    usleep(20000000);
     if (stats_is_first) stats_is_first = false;
     else                stats_ofile << ",";
     extraction(stats_url, hnd, stats_ofile);
-    usleep(1000000);
+    usleep(20000000);
     if (ticker_is_first) ticker_is_first = false;
     else                 ticker_ofile << ",";
     extraction(ticker_url, hnd, ticker_ofile);
-    usleep(interval - 2000000);
+    usleep(interval - 40000000);
   }
 
   book_ofile << "]";

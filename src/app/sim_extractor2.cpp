@@ -100,6 +100,11 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   s::string ticker_outfile = ticker_outss.str();
   s::ofstream ticker_ofile(ticker_outfile.c_str());
 
+  s::stringstream trades_outss;
+  trades_outss << prefix << "_" << product << "_trades_" << s::to_string(epoch) << ".json";
+  s::string trades_outfile = trades_outss.str();
+  s::ofstream trades_ofile(trades_outfile.c_str());
+
   s::stringstream book_urlss;
   book_urlss << COINBASE_URL << product << "/book?level=" << s::to_string(level);
   s::string book_url = book_urlss.str();
@@ -112,6 +117,10 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   ticker_urlss << COINBASE_URL << product << "/ticker";
   s::string ticker_url = ticker_urlss.str();
 
+  s::stringstream trades_urlss;
+  trades_urlss << COINBASE_URL << product << "/trades";
+  s::string trades_url = trades_urlss.str();
+
   CURL* hnd = curl_easy_init();
 
   if (not hnd){
@@ -122,33 +131,41 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   bool book_is_first = true;
   bool stats_is_first = true;
   bool ticker_is_first = true;
+  bool trades_is_first = true;
 
   book_ofile << "[";
   stats_ofile << "[";
   ticker_ofile << "[";
+  trades_ofile << "[";
 
   for (int i = 0; i < total; ++i){
     if (book_is_first) book_is_first = false;
     else               book_ofile << ",";
     extraction(book_url, hnd, book_ofile);
-    usleep(20000000);
+    usleep(15000000);
     if (stats_is_first) stats_is_first = false;
     else                stats_ofile << ",";
     extraction(stats_url, hnd, stats_ofile);
-    usleep(20000000);
+    usleep(15000000);
     if (ticker_is_first) ticker_is_first = false;
     else                 ticker_ofile << ",";
     extraction(ticker_url, hnd, ticker_ofile);
-    usleep(interval - 40000000);
+    usleep(15000000);
+    if (trades_is_first) trades_is_first = false;
+    else                 trades_ofile << ",";
+    extraction(trades_url, hnd, trades_ofile);
+    usleep(interval - 45000000);
   }
 
   book_ofile << "]";
   stats_ofile << "]";
   ticker_ofile << "]";
+  trades_ofile << "]";
 
   book_ofile.close();
   stats_ofile.close();
   ticker_ofile.close();
+  trades_ofile.close();
 
   curl_easy_cleanup(hnd);
 }

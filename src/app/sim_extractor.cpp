@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <string.h>
 #include <unistd.h>
 #include <curl/curl.h>
@@ -28,6 +29,24 @@ namespace po = boost::program_options;
 const char* const COINBASE_URL = "https://api.exchange.coinbase.com/products/";
 const char* const USER_AGENT = "the_crypt";
 
+l::sources::severity_logger<l::trivial::severity_level>& logger(){
+  static l::sources::severity_logger<l::trivial::severity_level> logger;
+  return logger;
+}
+
+void init_log(const char* filename){
+  l::add_file_log(
+      l::keywords::file_name = filename,
+      l::keywords::format ="[%TimeStamp%]: %Message%"
+  );
+  l::core::get()->set_filter(l::trivial::severity >= l::trivial::info);
+  l::add_common_attributes();
+}
+
+void sighandler(int s){
+  BOOST_LOG_SEV(logger(), sev::info) << "caught sigpipe. ignored";
+}
+
 struct memory {
   char* response;
   size_t size;
@@ -50,19 +69,6 @@ size_t write_buffer(void* dat, size_t sz, size_t nmemb, void* userp){
   return realsize;
 }
 
-l::sources::severity_logger<l::trivial::severity_level>& logger(){
-  static l::sources::severity_logger<l::trivial::severity_level> logger;
-  return logger;
-}
-
-void init_log(const char* filename){
-  l::add_file_log(
-      l::keywords::file_name = filename,
-      l::keywords::format ="[%TimeStamp%]: %Message%"
-  );
-  l::core::get()->set_filter(l::trivial::severity >= l::trivial::info);
-  l::add_common_attributes();
-}
 
 void book_extraction(const s::string& product, int level, int interval, int total, const s::string& prefix, int epoch){
   s::stringstream outss;
@@ -220,6 +226,7 @@ s::vector<s::string> parse_products(const s::string& pids){
 }
 
 int main(int argc, char* argv[]){
+  signal(SIGPIPE, sighandler);
   po::options_description desc("Parameters");
 
   try {

@@ -87,17 +87,18 @@ void book_extraction(const s::string& product, int level, int interval, int tota
   urlss << COINBASE_URL << product << "/book?level=" << s::to_string(level);
   s::string url = urlss.str();
 
-  CURL* hnd = curl_easy_init();
-
-  if (not hnd){
-    BOOST_LOG_SEV(logger(), sev::error) << __FUNCTION__ << " CURL handle cannot be allocated. product: " << product << " prefix: " << prefix;
-    return;
-  }
 
   ofile << "[";
 
   bool is_first = true;
   for (int i = 0; i < total; ++i){
+    CURL* hnd = curl_easy_init();
+
+    if (not hnd){
+      BOOST_LOG_SEV(logger(), sev::error) << __FUNCTION__ << " CURL handle cannot be allocated. product: " << product << " prefix: " << prefix;
+      return;
+    }
+
     memory chunk = {0};
 
     curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
@@ -131,12 +132,13 @@ void book_extraction(const s::string& product, int level, int interval, int tota
     ofile.flush();
 
     usleep(interval);
+
+    curl_easy_cleanup(hnd);
   }
 
   ofile << "]";
   ofile.close();
 
-  curl_easy_cleanup(hnd);
 }
 
 s::vector<s::string> parse_products(const s::string& pids){

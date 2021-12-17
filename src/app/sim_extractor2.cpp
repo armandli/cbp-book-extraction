@@ -127,12 +127,6 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   trades_urlss << COINBASE_URL << product << "/trades";
   s::string trades_url = trades_urlss.str();
 
-  CURL* hnd = curl_easy_init();
-
-  if (not hnd){
-    BOOST_LOG_SEV(logger(), sev::error) << __FUNCTION__ << " CURL handle cannot be allocated. product: " << product << " prefix: " << prefix;
-    return;
-  }
 
   bool book_is_first = true;
   bool stats_is_first = true;
@@ -145,6 +139,13 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   trades_ofile << "[";
 
   for (int i = 0; i < total; ++i){
+    CURL* hnd = curl_easy_init();
+
+    if (not hnd){
+      BOOST_LOG_SEV(logger(), sev::error) << __FUNCTION__ << " CURL handle cannot be allocated. product: " << product << " prefix: " << prefix;
+      return;
+    }
+
     if (book_is_first) book_is_first = false;
     else               book_ofile << ",";
     extraction(book_url, hnd, book_ofile);
@@ -161,6 +162,8 @@ void sim_extraction(const s::string& product, int level, int interval, int total
     else                 trades_ofile << ",";
     extraction(trades_url, hnd, trades_ofile);
     usleep(interval - 45000000);
+
+    curl_easy_cleanup(hnd);
   }
 
   book_ofile << "]";
@@ -173,7 +176,6 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   ticker_ofile.close();
   trades_ofile.close();
 
-  curl_easy_cleanup(hnd);
 }
 
 s::vector<s::string> parse_products(const s::string& pids){

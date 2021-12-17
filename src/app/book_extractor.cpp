@@ -131,9 +131,10 @@ void book_extraction(const s::string& product, int level, int interval, int tota
     ofile << chunk.response;
     ofile.flush();
 
+    curl_easy_cleanup(hnd);
+
     usleep(interval);
 
-    curl_easy_cleanup(hnd);
   }
 
   ofile << "]";

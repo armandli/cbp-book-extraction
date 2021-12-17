@@ -161,9 +161,10 @@ void sim_extraction(const s::string& product, int level, int interval, int total
     if (trades_is_first) trades_is_first = false;
     else                 trades_ofile << ",";
     extraction(trades_url, hnd, trades_ofile);
-    usleep(interval - 45000000);
 
     curl_easy_cleanup(hnd);
+
+    usleep(interval - 45000000);
   }
 
   book_ofile << "]";

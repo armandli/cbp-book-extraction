@@ -14,6 +14,7 @@
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/sinks/text_file_backend.hpp>
+#include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/sources/severity_logger.hpp>
@@ -35,11 +36,21 @@ l::sources::severity_logger<l::trivial::severity_level>& logger(){
 }
 
 void init_log(const char* filename){
-  l::add_file_log(
-      l::keywords::file_name = filename,
-      l::keywords::format ="[%TimeStamp%]: %Message%"
-  );
-  l::core::get()->set_filter(l::trivial::severity >= l::trivial::info);
+  boost::shared_ptr< l::core > core = l::core::get();
+
+  // Create a backend and attach a couple of streams to it
+  boost::shared_ptr< l::sinks::text_ostream_backend > backend = boost::make_shared< l::sinks::text_ostream_backend >();
+  backend->add_stream(boost::shared_ptr< std::ostream >(new std::ofstream(filename)));
+
+  // Enable auto-flushing after each log record written
+  backend->auto_flush(true);
+
+  // Wrap it into the frontend and register in the core.
+  // The backend requires synchronization in the frontend.
+  typedef l::sinks::synchronous_sink< l::sinks::text_ostream_backend > sink_t;
+  boost::shared_ptr< sink_t > sink(new sink_t(backend));
+  core->add_sink(sink);
+  core->set_filter(l::trivial::severity >= l::trivial::info);
   l::add_common_attributes();
 }
 
@@ -68,8 +79,6 @@ size_t write_buffer(void* dat, size_t sz, size_t nmemb, void* userp){
 
   return realsize;
 }
-
-
 
 void book_extraction(const s::string& product, int level, int interval, int total, const s::string& prefix, int epoch){
   s::stringstream outss;
@@ -165,6 +174,10 @@ int main(int argc, char* argv[]){
   signal(SIGPIPE, sighandler);
   signal(SIGTERM, sighandler);
   po::options_description desc("Parameters");
+
+  // boost log bug fix
+  // https://www.boost.org/doc/libs/1_62_0/libs/log/doc/html/log/rationale/why_crash_on_term.html
+  boost::filesystem::path::imbue(s::locale("C"));
 
   try {
     desc.add_options()

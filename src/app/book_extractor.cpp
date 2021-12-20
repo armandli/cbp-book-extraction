@@ -44,7 +44,7 @@ void init_log(const char* filename){
 }
 
 void sighandler(int s){
-  BOOST_LOG_SEV(logger(), sev::info) << "caught sigpipe. do nothing";
+  BOOST_LOG_SEV(logger(), sev::info) << "caught signal " << s << ". do nothing";
 }
 
 struct memory {
@@ -163,6 +163,7 @@ s::vector<s::string> parse_products(const s::string& pids){
 
 int main(int argc, char* argv[]){
   signal(SIGPIPE, sighandler);
+  signal(SIGTERM, sighandler);
   po::options_description desc("Parameters");
 
   try {

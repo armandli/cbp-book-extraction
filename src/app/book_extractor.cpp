@@ -69,6 +69,7 @@ size_t write_buffer(void* dat, size_t sz, size_t nmemb, void* userp){
 
   void* ptr = realloc(mem->response, mem->size + realsize + 1);
   if (ptr == NULL){
+    BOOST_LOG_SEV(logger(), sev::error) << "Out of memory!";
     return 0; // out of memory
   }
 
@@ -124,6 +125,7 @@ void book_extraction(const s::string& product, int level, int interval, int tota
 
     if (ret != CURLE_OK){
       BOOST_LOG_SEV(logger(), sev::error) << __FUNCTION__ << " CURL return: " << ret;
+      if (chunk.response) free(chunk.response);
       usleep(interval);
       continue;
     }
@@ -133,12 +135,13 @@ void book_extraction(const s::string& product, int level, int interval, int tota
     if (is_first) is_first = false;
     else          ofile << ",";
 
-    if (chunk.size <= 1){
+    if (chunk.response == nullptr){
       BOOST_LOG_SEV(logger(), sev::info) << __FUNCTION__ << "0 chunk size";
       continue;
     }
     ofile << chunk.response;
     ofile.flush();
+    free(chunk.response);
 
     curl_easy_cleanup(hnd);
 

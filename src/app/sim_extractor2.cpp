@@ -69,6 +69,7 @@ size_t write_buffer(void* dat, size_t sz, size_t nmemb, void* userp){
 
   void* ptr = realloc(mem->response, mem->size + realsize + 1);
   if (ptr == NULL){
+    BOOST_LOG_SEV(logger(), sev::error) << "Out of memory!";
     return 0; // out of memory
   }
 
@@ -97,8 +98,11 @@ void extraction(const s::string& url, CURL* hnd, s::ofstream& ofile){
     // cannot use ret to do anything useful
     curl_easy_perform(hnd);
 
-    ofile << chunk.response;
-    ofile.flush();
+    if (chunk.response){
+      ofile << chunk.response;
+      ofile.flush();
+      free(chunk.response);
+    }
 }
 
 void sim_extraction(const s::string& product, int level, int interval, int total, const s::string& prefix, int epoch){
@@ -138,11 +142,12 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   trades_urlss << COINBASE_URL << product << "/trades";
   s::string trades_url = trades_urlss.str();
 
-
   bool book_is_first = true;
   bool stats_is_first = true;
   bool ticker_is_first = true;
   bool trades_is_first = true;
+
+  BOOST_LOG_SEV(logger(), sev::info) << "Begin Extraction " << product;
 
   book_ofile << "[";
   stats_ofile << "[";
@@ -192,6 +197,8 @@ void sim_extraction(const s::string& product, int level, int interval, int total
   stats_ofile.close();
   ticker_ofile.close();
   trades_ofile.close();
+
+  BOOST_LOG_SEV(logger(), sev::info) << "Extraction " << product << " complete";
 }
 
 s::vector<s::string> parse_products(const s::string& pids){
